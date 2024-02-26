@@ -13,10 +13,9 @@ def get_data_stlouis(series_id):
     url = "https://api.stlouisfed.org/fred/series/observations?series_id=" + series_id + "&api_key=" + api_key
 
     try:
-        get_request = requests.get(url)
-        get_request.raise_for_status() 
-        
-        data = BeautifulSoup(get_request.content, 'html.parser')
+        response = requests.get(url)
+        response.raise_for_status() 
+        data = BeautifulSoup(response.content, 'html.parser')
 
     except requests.exceptions.HTTPError as errh:
         print("ERROR") 
@@ -24,7 +23,7 @@ def get_data_stlouis(series_id):
     except requests.exceptions.ConnectionError as conerr: 
         print("Connection error") 
     except requests.exceptions.RequestException as errex:
-        print('ERRROR: GET request failed with an status code of ' + str(get_request.status_code))
+        print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
 
     return data
 
@@ -34,10 +33,10 @@ def get_data_ustreasury(key, year):
     url = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=" + key + "&field_tdr_date_value=" + str(year)
 
     try:
-        get_request = requests.get(url)
-        get_request.raise_for_status() 
+        response = requests.get(url)
+        response.raise_for_status() 
 
-        data = BeautifulSoup(get_request.content, features="lxml-xml")
+        data = BeautifulSoup(response.content, features="lxml-xml")
 
     except requests.exceptions.HTTPError as errh:
         print("ERROR") 
@@ -45,6 +44,6 @@ def get_data_ustreasury(key, year):
     except requests.exceptions.ConnectionError as conerr: 
         print("Connection error") 
     except requests.exceptions.RequestException as errex:
-        print('ERRROR: GET request failed with an status code of ' + str(get_request.status_code))
+        print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
 
     return data
