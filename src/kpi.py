@@ -10,4 +10,5 @@ class KPI:
 
     def get_data(self):
         print(self.data)
-        return self.data 
+        return self.data
+    

@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
+import pandas as pd 
+import re
+
 
 class API_CLASSES(Enum):
     STLOUIS = 0
@@ -31,7 +34,15 @@ class API(ABC):
         pass
 
     @abstractmethod
-    def get_data(id): 
+    def request_data(id): 
+        pass
+    
+    @abstractmethod
+    def transform_data(data):
+        pass
+
+    @abstractmethod
+    def get_data(data):
         pass
 
 class STLOUIS(API):
@@ -39,14 +50,15 @@ class STLOUIS(API):
     def __init__(self, name = "STLOUIS"):
         self.name = name
 
-    def get_data(id):
+    def request_data(id):
         api_key = os.environ.get("api_key")
         url = "https://api.stlouisfed.org/fred/series/observations?series_id=" + id + "&api_key=" + api_key
 
         try:
             response = requests.get(url)
             response.raise_for_status() 
-            data = BeautifulSoup(response.content, 'html.parser')
+            data = BeautifulSoup(response.content, "lxml-xml")
+        
         except requests.exceptions.HTTPError as errh:
             print("ERROR") 
             print(errh.args[0]) 
@@ -57,12 +69,35 @@ class STLOUIS(API):
 
         return data
     
+    def transform_data(data):
+
+        cols = ["date", "value"] 
+        rows = [] 
+
+        for elem in data.find_all("observation"):
+            
+            rows.append({
+                "date": elem.get("date"),
+                "value": elem.get("value")
+            }) 
+  
+        df = pd.DataFrame(rows, columns=cols) 
+
+        return df
+    
+    def get_data(id):
+
+        data = STLOUIS.request_data(id)
+        df = STLOUIS.request_data(data)
+
+        return df
+    
 class USTREASURY(API):
 
     def __init__(self, name = "USTREASURY"):
         self.name = name
 
-    def get_data(id): 
+    def request_data(id): 
 
         current_year = datetime.now().year
         current_year = str(current_year)
@@ -81,3 +116,13 @@ class USTREASURY(API):
             print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
 
         return data
+    
+    def transform_data(data):
+        return data
+    
+    def get_data(id):
+
+        data = USTREASURY.request_data(id)
+        df = USTREASURY.request_data(data)
+
+        return df
