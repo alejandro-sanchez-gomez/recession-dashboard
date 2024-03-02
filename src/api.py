@@ -118,7 +118,30 @@ class USTREASURY(API):
         return data
     
     def transform_data(data):
-        return data
+
+        cols = ["date", "bc_1month", "bc_3month", "bc_6month", "bc_1year", "bc_3year", "bc_7year"]  
+        rows = [] 
+
+        for elem in data.find_all("content"):
+            rows.append({
+                "date": elem.find("d:NEW_DATE"),
+                "bc_1month": elem.find("d:BC_1MONTH"),
+                "bc_3month": elem.find("d:BC_3MONTH"),
+                "bc_6month": elem.find("d:BC_6MONTH"),
+                "bc_1year": elem.find("d:BC_1YEAR"),
+                "bc_3year": elem.find("d:BC_3YEAR"),
+                "bc_7year": elem.find("d:BC_7YEAR")
+            }) 
+        
+        df = pd.DataFrame(rows, columns=cols) 
+        df = df.astype(str)
+
+        for n in df.columns:
+            df[n] = df[n].str.replace('<.*?>', '', regex=True)
+        
+        df['date'] = df['date'].str.replace('T00:00:00', '')
+
+        return df
     
     def get_data(id):
 

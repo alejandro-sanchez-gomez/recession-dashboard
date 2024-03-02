@@ -45,7 +45,8 @@ class TestUSTREASURY(unittest.TestCase):
     def test_transform_data_ustreasury(self):
         
         data = api.USTREASURY.request_data("daily_treasury_yield_curve")
-        self.assertIsNotNone(api.STLOUIS.get_data("PCE"), 0)
+        df = api.USTREASURY.transform_data(data)
+        self.assertIsNotNone(df)
 
     def test_get_data_ustreasury(self):
         
