@@ -5,7 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 sys.path.append(os.environ.get("src_path"))
 import unittest
-import api, kpi
+import kpi
 
 class TestKpi(unittest.TestCase):
 
