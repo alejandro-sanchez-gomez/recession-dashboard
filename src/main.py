@@ -2,10 +2,7 @@
 #!/usr/bin/env python3
 
 from etl import kpi
-from flask import Flask
 
-app = Flask(__name__)
-@app.route('/')
 def main():
         kpi_pce = kpi.KPI("Price Consumer Expenditure")
         kpi_pce.set_data(0, "PCE")
@@ -43,4 +40,4 @@ def main():
         kpi_pce.set_data(1, "daily_treasury_yield_curve")
         kpi_pce.upload_data_azure()
 
-app.run()
+main()
