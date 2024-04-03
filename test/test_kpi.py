@@ -16,6 +16,11 @@ class TestKpi(unittest.TestCase):
 
         kpi_pce.set_data(0, "PCE")
         self.assertIsNotNone(kpi_pce.get_data())
+    
+    def test_upload_data_azure(self):
+        kpi_pce = kpi.KPI("Price Consumer Expenditure")
+        kpi_pce.set_data(0, "PCE")
+        kpi_pce.upload_data_azure()
         
     
 if __name__ == '__main__':
