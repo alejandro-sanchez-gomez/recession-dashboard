@@ -7,7 +7,7 @@ sys.path.append(os.environ.get("src_path"))
 import unittest
 import kpi
 
-class TestKpi(unittest.TestCase):
+class TestKpiStLouis(unittest.TestCase):
 
     def test_init_kpi(self):
 
@@ -21,6 +21,21 @@ class TestKpi(unittest.TestCase):
         kpi_pce = kpi.KPI("Price Consumer Expenditure")
         kpi_pce.set_data(0, "PCE")
         kpi_pce.upload_data_azure()
+
+class TestKpiUSTREASURY(unittest.TestCase):
+    
+    def test_init_kpi(self):
+
+        kpi_yield = kpi.KPI("Yield Curve")
+        self.assertIsNotNone(kpi_yield)
+
+        kpi_yield.set_data(1, "daily_treasury_yield_curve")
+        self.assertIsNotNone(kpi_yield.get_data())
+    
+    def test_upload_data_azure(self):
+        kpi_yield = kpi.KPI("Yield Curve")
+        kpi_yield.set_data(1, "daily_treasury_yield_curve")
+        kpi_yield.upload_data_azure()
         
     
 if __name__ == '__main__':

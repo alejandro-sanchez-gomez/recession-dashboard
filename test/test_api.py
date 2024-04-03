@@ -40,7 +40,7 @@ class TestUSTREASURY(unittest.TestCase):
 
     def test_request_data_ustreasury(self):
         
-        self.assertNotEqual(api.USTREASURY.request_data("daily_treasury_yield_curve"), 0)
+        self.assertIsNotNone(api.USTREASURY.request_data("daily_treasury_yield_curve"))
 
     def test_transform_data_ustreasury(self):
         
@@ -50,7 +50,7 @@ class TestUSTREASURY(unittest.TestCase):
 
     def test_get_data_ustreasury(self):
         
-        self.assertNotEqual(api.USTREASURY.get_data("daily_treasury_yield_curve"), 0)
+        self.assertIsNotNone(api.USTREASURY.get_data("daily_treasury_yield_curve"))
 
 if __name__ == '__main__':
     unittest.main()
