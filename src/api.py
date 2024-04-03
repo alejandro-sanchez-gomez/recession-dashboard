@@ -88,7 +88,7 @@ class STLOUIS(API):
     def get_data(id):
 
         data = STLOUIS.request_data(id)
-        df = STLOUIS.request_data(data)
+        df = STLOUIS.transform_data(data)
 
         return df
     
@@ -146,6 +146,6 @@ class USTREASURY(API):
     def get_data(id):
 
         data = USTREASURY.request_data(id)
-        df = USTREASURY.request_data(data)
+        df = USTREASURY.transform_data(data)
 
         return df
