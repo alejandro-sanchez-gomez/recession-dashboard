@@ -1,8 +1,12 @@
 
-import sys, os
+#!/usr/bin/env python3
+
+import sys
 import unittest
-sys.path.append(os.environ.get("src_path"))
-import api
+
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent)+"\src")
+from etl import api
 
 class TestSTLOUIS(unittest.TestCase):
 

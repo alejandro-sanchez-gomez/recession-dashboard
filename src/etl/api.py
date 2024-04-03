@@ -1,15 +1,13 @@
-import os
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 
+#!/usr/bin/env python3
+
+import os
 import requests
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 import pandas as pd 
-import re
-
 
 class API_CLASSES(Enum):
     STLOUIS = 0
@@ -51,7 +49,7 @@ class STLOUIS(API):
         self.name = name
 
     def request_data(id):
-        api_key = os.environ.get("api_key")
+        api_key = os.environ.get("FRED_API_KEY")
         url = "https://api.stlouisfed.org/fred/series/observations?series_id=" + id + "&api_key=" + api_key
 
         try:

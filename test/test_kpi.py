@@ -1,8 +1,10 @@
-
-import sys, os
+#!/usr/bin/env python3
+import sys
 import unittest
-sys.path.append(os.environ.get("src_path"))
-import kpi
+
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent)+"\src")
+from etl import kpi
 
 class TestKpiSTLOUIS(unittest.TestCase):
 

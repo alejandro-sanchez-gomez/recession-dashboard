@@ -1,7 +1,8 @@
 
-import api
+
 import os, io
 from azure.storage.blob import BlobServiceClient
+from etl import api
 
 class KPI:
     def __init__(self, kpi_name):
