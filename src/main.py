@@ -43,5 +43,4 @@ def main():
         kpi_pce.set_data(1, "daily_treasury_yield_curve")
         kpi_pce.upload_data_azure()
 
-# EXECUTION
-main()
+app.run()
