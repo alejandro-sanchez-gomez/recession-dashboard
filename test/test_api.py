@@ -1,10 +1,7 @@
 
-import sys
-import os
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
-sys.path.append(os.environ.get("src_path"))
+import sys, os
 import unittest
+sys.path.append(os.environ.get("src_path"))
 import api
 
 class TestSTLOUIS(unittest.TestCase):
