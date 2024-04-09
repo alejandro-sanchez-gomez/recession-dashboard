@@ -28,10 +28,6 @@ class API_DATA_DISPATCHER(ABC):
 class API(ABC):
      
     @abstractmethod
-    def __init__(self, name): 
-        pass
-
-    @abstractmethod
     def request_data(id): 
         pass
     
@@ -40,13 +36,10 @@ class API(ABC):
         pass
 
     @abstractmethod
-    def get_data(data):
+    def get_data(id):
         pass
 
 class STLOUIS(API):
-
-    def __init__(self, name = "STLOUIS"):
-        self.name = name
 
     def request_data(id):
         api_key = os.environ.get("FRED_API_KEY")
@@ -91,9 +84,6 @@ class STLOUIS(API):
         return df
     
 class USTREASURY(API):
-
-    def __init__(self, name = "USTREASURY"):
-        self.name = name
 
     def request_data(id): 
 
