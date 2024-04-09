@@ -4,11 +4,12 @@
 from etl import kpi
 
 def main():
+        
         kpi_pce = kpi.KPI("Price Consumer Expenditure")
         kpi_pce.set_data(0, "PCE")
         kpi_pce.upload_data_azure()
 
-        kpi_pce = kpi.KPI("Corporate Profits (After Tax)")
+        kpi_pce = kpi.KPI("Corporate Profits After Tax")
         kpi_pce.set_data(0, "CP")
         kpi_pce.upload_data_azure()
 
