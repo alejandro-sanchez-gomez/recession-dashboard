@@ -35,4 +35,3 @@ class KPI:
         
         #upload
         blob_client.upload_blob(writer.getvalue(), overwrite = True)
-    
