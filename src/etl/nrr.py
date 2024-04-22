@@ -3,9 +3,9 @@ import os, io
 import datetime
 from azure.storage.blob import BlobServiceClient, BlobClient
 
-class NRR:
+class nrr_value:
 
-    def __init__(self, PCE, CP, GDP, INDPRO, USREC, SLRTTO01USQ661S, UNRATE, VIXCLS, daily_treasury_yield_curve):
+    def __init__(self, PCE, CP, GDP, INDPRO, USREC, SLRTTO01USQ661S, UNRATE, VIXCLS, YIELD):
         self.set_PCE(PCE) 
         self.set_CP(CP)
         self.set_GDP(GDP)
@@ -14,7 +14,7 @@ class NRR:
         self.set_RETAIL(SLRTTO01USQ661S)
         self.set_UNRATE(UNRATE)
         self.set_VIXCLS(VIXCLS)
-        self.set_YIELD(daily_treasury_yield_curve)
+        self.set_YIELD(YIELD)
 
     def set_PCE(self, PCE):
         self.PCE = PCE
@@ -53,11 +53,17 @@ class NRR:
         return self.VIXCLS
     def get_YIELD(self):
         return self.YIELD
-
-    def calculate_nrr_value(self):
+    def get_nrr(self):
+        return self.nrr
+    
+    def calculate_nrr(self):
         nrr_value = 5
         self.nrr_value = nrr_value
     
+class nrr_table:
+    def __init__(self):
+        print()
+
     def download_nrr_azure(self):
 
         #authentificate
@@ -97,8 +103,4 @@ class NRR:
         self.nrr_table.to_csv(writer)
         
         #upload
-        blob_client.upload_blob(writer.getvalue(), overwrite = True)
-
-    def get_nrr(self):
-        return self.nrr
-    
+        blob_client.upload_blob(writer.getvalue(), overwrite = True)    
