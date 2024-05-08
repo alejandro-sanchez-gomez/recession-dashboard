@@ -3,42 +3,72 @@
 
 from etl import kpi
 
-def main():
+def set_kpi_data(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield):
         
-        kpi_pce = kpi.KPI("Price Consumer Expenditure")
         kpi_pce.set_data(0, "PCE")
-        kpi_pce.upload_data_azure()
+        kpi_cp.set_data(0, "CP")
+        kpi_gdp.set_data(0, "GDP")
+        kpi_indpro.set_data(0, "INDPRO")
+        kpi_usrec.set_data(0, "USREC")
+        kpi_retail.set_data(0, "MRTSSM44000USS")
+        kpi_unrate.set_data(0, "UNRATE")
+        kpi_vixcls.set_data(0, "VIXCLS")
+        kpi_yield.set_data(1, "daily_treasury_yield_curve")     
 
-        kpi_pce = kpi.KPI("Corporate Profits After Tax")
-        kpi_pce.set_data(0, "CP")
-        kpi_pce.upload_data_azure()
 
-        kpi_pce = kpi.KPI("Gross Domestic Product")
-        kpi_pce.set_data(0, "GDP")
-        kpi_pce.upload_data_azure()
-
-        kpi_pce = kpi.KPI("Industrial Production")
-        kpi_pce.set_data(0, "INDPRO")
-        kpi_pce.upload_data_azure()
-
-        kpi_pce = kpi.KPI("NBER Recession Index")
-        kpi_pce.set_data(0, "USREC")
-        kpi_pce.upload_data_azure()
-
-        kpi_pce = kpi.KPI("Total Retail Trade")
-        kpi_pce.set_data(0, "SLRTTO01USQ661S")
-        kpi_pce.upload_data_azure()
-
-        kpi_pce = kpi.KPI("Unemployment Rate")
-        kpi_pce.set_data(0, "UNRATE")
-        kpi_pce.upload_data_azure()
+def make_list_kpi(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield):
         
-        kpi_pce = kpi.KPI("Volatily Index")
-        kpi_pce.set_data(0, "VIXCLS")
-        kpi_pce.upload_data_azure()
+        list_kpi = []
 
-        kpi_pce = kpi.KPI("Yield Curve")
-        kpi_pce.set_data(1, "daily_treasury_yield_curve")
+        # append with usrec as the first value
+
+        list_kpi.append(kpi_usrec.get_data())
+        list_kpi.append(kpi_pce.get_data())
+        list_kpi.append(kpi_cp.get_data())
+        list_kpi.append(kpi_gdp.get_data())
+        list_kpi.append(kpi_indpro.get_data())
+        list_kpi.append(kpi_retail.get_data())
+        list_kpi.append(kpi_unrate.get_data())
+        list_kpi.append(kpi_vixcls.get_data())
+        list_kpi.append(kpi_yield.get_data())
+
+        return list_kpi
+
+def upload_azure(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield):
+
         kpi_pce.upload_data_azure()
+        kpi_cp.upload_data_azure()
+        kpi_gdp.upload_data_azure()
+        kpi_indpro.upload_data_azure()
+        kpi_usrec.upload_data_azure()
+        kpi_retail.upload_data_azure()
+        kpi_unrate.upload_data_azure()
+        kpi_vixcls.upload_data_azure()
+        kpi_yield.upload_data_azure()    
+
+def main():
+
+        # initialize kpis
+        kpi_pce = kpi.KPI("pce")
+        kpi_cp = kpi.KPI("cp")
+        kpi_gdp = kpi.KPI("gdp")
+        kpi_indpro = kpi.KPI("indpro")
+        kpi_usrec = kpi.KPI("usrec")
+        kpi_retail = kpi.KPI("retail")
+        kpi_unrate = kpi.KPI("unrate")
+        kpi_vixcls = kpi.KPI("volatility")
+        kpi_yield = kpi.KPI("yield")
+        
+        # set data into the kpi
+        set_kpi_data(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
+
+        # upload them into azure
+        upload_azure(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
+
+        # join all the kpis into one list
+        list_kpi = make_list_kpi(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
+
+        
+
 
 main()

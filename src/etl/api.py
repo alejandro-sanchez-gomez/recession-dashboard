@@ -26,13 +26,13 @@ class API_DATA_DISPATCHER(ABC):
         return data
 
 class API(ABC):
-     
+
     @abstractmethod
     def request_data(id): 
         pass
     
     @abstractmethod
-    def transform_data(data):
+    def transform_data(id, data):
         pass
 
     @abstractmethod
@@ -42,9 +42,10 @@ class API(ABC):
 class STLOUIS(API):
 
     def request_data(id):
+
         api_key = os.environ.get("FRED_API_KEY")
         url = "https://api.stlouisfed.org/fred/series/observations?series_id=" + id + "&api_key=" + api_key
-
+        
         try:
             response = requests.get(url)
             response.raise_for_status() 
@@ -60,26 +61,32 @@ class STLOUIS(API):
 
         return data
     
-    def transform_data(data):
+    def transform_data(id, data):
 
-        cols = ["date", "value"] 
+        cols = ["date", id] 
         rows = [] 
 
         for elem in data.find_all("observation"):
             
             rows.append({
                 "date": elem.get("date"),
-                "value": elem.get("value")
+                id: elem.get(id)
             }) 
   
         df = pd.DataFrame(rows, columns=cols) 
+
+        df["date"] = pd.to_datetime(df["date"])
+        df["value"] = pd.to_numeric(df["value"], errors = 'coerce')
+
+        if(id == "USREC"):
+            df = df.iloc[769:]
 
         return df
     
     def get_data(id):
 
         data = STLOUIS.request_data(id)
-        df = STLOUIS.transform_data(data)
+        df = STLOUIS.transform_data(id, data)
 
         return df
     
@@ -87,38 +94,41 @@ class USTREASURY(API):
 
     def request_data(id): 
 
-        current_year = datetime.now().year
-        current_year = str(current_year)
-        url = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=" + id + "&field_tdr_date_value=" + current_year
-
-        try:
-            response = requests.get(url)
-            response.raise_for_status() 
-            data = BeautifulSoup(response.content, features="lxml-xml")
-        except requests.exceptions.HTTPError as errh:
-            print("ERROR") 
-            print(errh.args[0]) 
-        except requests.exceptions.ConnectionError as conerr: 
-            print("Connection error") 
-        except requests.exceptions.RequestException as errex:
-            print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
-
+        last_year = datetime.now().year
+        current_year = 1990
+        data = BeautifulSoup(features="lxml-xml")
+        while(current_year < last_year):
+            year = str(current_year)  
+            url = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=" + id + "&field_tdr_date_value=" + year
+            print(year)
+            try:
+                response = requests.get(url)
+                response.raise_for_status() 
+                page = BeautifulSoup(response.content, features="lxml-xml")
+            except requests.exceptions.HTTPError as errh:
+                print("ERROR") 
+                print(errh.args[0]) 
+            except requests.exceptions.ConnectionError as conerr: 
+                print("Connection error") 
+            except requests.exceptions.RequestException as errex:
+                print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
+            data.append(page)
+            current_year = current_year + 1
         return data
     
-    def transform_data(data):
+    def transform_data(id, data):
 
-        cols = ["date", "bc_1month", "bc_3month", "bc_6month", "bc_1year", "bc_3year", "bc_7year"]  
+        cols = ["date", "bc_3month", "bc_6month", "bc_1year", "bc_10year", "bc_30year"]  
         rows = [] 
 
         for elem in data.find_all("content"):
             rows.append({
                 "date": elem.find("d:NEW_DATE"),
-                "bc_1month": elem.find("d:BC_1MONTH"),
                 "bc_3month": elem.find("d:BC_3MONTH"),
                 "bc_6month": elem.find("d:BC_6MONTH"),
                 "bc_1year": elem.find("d:BC_1YEAR"),
-                "bc_3year": elem.find("d:BC_3YEAR"),
-                "bc_7year": elem.find("d:BC_7YEAR")
+                "bc_10year": elem.find("d:BC_10YEAR"),
+                "bc_30year": elem.find("d:BC_30YEAR")
             }) 
         
         df = pd.DataFrame(rows, columns=cols) 
@@ -129,11 +139,18 @@ class USTREASURY(API):
         
         df['date'] = df['date'].str.replace('T00:00:00', '')
 
+        df["date"] = pd.to_datetime(df["date"])
+        df["bc_3month"] = pd.to_numeric(df["bc_3month"], errors = 'coerce')
+        df["bc_6month"] = pd.to_numeric(df["bc_6month"], errors = 'coerce')
+        df["bc_1year"] = pd.to_numeric(df["bc_1year"], errors = 'coerce')
+        df["bc_10year"] = pd.to_numeric(df["bc_10year"], errors = 'coerce')
+        df["bc_30year"] = pd.to_numeric(df["bc_30year"], errors = 'coerce')
+
         return df
     
     def get_data(id):
 
         data = USTREASURY.request_data(id)
-        df = USTREASURY.transform_data(data)
+        df = USTREASURY.transform_data(id, data)
 
         return df

@@ -1,64 +1,95 @@
 
 import os, io
 import datetime
+import pandas
 from azure.storage.blob import BlobServiceClient, BlobClient
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
 
 class nrr_value:
 
-    def __init__(self, PCE, CP, GDP, INDPRO, USREC, SLRTTO01USQ661S, UNRATE, VIXCLS, YIELD):
-        self.set_PCE(PCE) 
-        self.set_CP(CP)
-        self.set_GDP(GDP)
-        self.set_INDPRO(INDPRO)
-        self.set_USREC(USREC)
-        self.set_RETAIL(SLRTTO01USQ661S)
-        self.set_UNRATE(UNRATE)
-        self.set_VIXCLS(VIXCLS)
-        self.set_YIELD(YIELD)
+    def __init__(self, list_kpi):
+        self.set_kpis(list_kpi) 
 
-    def set_PCE(self, PCE):
-        self.PCE = PCE
-    def set_CP(self, CP):
-        self.CP = CP
-    def set_GDP(self, GDP):
-        self.GDP = GDP
-    def set_INDPRO(self, INDPRO):
-        self.INDPRO = INDPRO
-    def set_USREC(self, USREC):
-        self.USREC = USREC
-    def set_RETAIL(self, SLRTTO01USQ661S):
-        self.RETAIL = SLRTTO01USQ661S
-    def set_UNRATE(self, UNRATE):
-        self.UNRATE = UNRATE
-    def set_VIXCLS(self, VIXCLS):
-        self.VIXCLS = VIXCLS
-    def set_YIELD(self, daily_treasury_yield_curve):
-        self.YIELD = daily_treasury_yield_curve
-
-    def get_PCE(self):
-        return self.PCE
-    def get_CP(self):
-        return self.CP 
-    def get_GDP(self):
-        return self.GDP 
-    def get_INDPRO(self):
-        return self.INDPRO
-    def get_USREC(self):
-        return self.USREC 
-    def get_RETAIL(self):
-        return self.RETAIL
-    def get_UNRATE(self):
-        return self.UNRATE
-    def get_VIXCLS(self):
-        return self.VIXCLS
-    def get_YIELD(self):
-        return self.YIELD
+    # SETTERS/GETTERS
+    def set_kpis(self, list):
+        self.kpis = list
+   
+    def get_kpis(self):
+        return self.kpis
+   
     def get_nrr(self):
         return self.nrr
     
+    # OPERATIONS
+    def list_normalize(self):
+        
+        list_df = self.get_kpis()
+
+        for elem in list_df:
+            elem_copy = elem
+            elem_date = elem_copy['date']
+            elem_value = elem_copy.drop(columns=['date'])
+            elem_value = (elem_value - elem_value.min())/(elem_value.max()-elem_value.min())
+            elem = pandas.concat([elem_date, elem_value], axis=1)
+            list_df[n] = elem
+            n = n+1
+        
+        self.set_kpis(list_df)
+
+    def list_unify(self):
+
+        list_df = self.get_kpis()
+
+        n = 0
+        for elem in list_df:
+            if(n==0):
+                table = elem
+            else:
+                table = pandas.merge(prev, elem, on="date", how="left")
+            prev = table
+            n = n + 1
+        
+        # remove rows that don't match
+        table = table.iloc[852:]
+
+        return table
+
     def calculate_nrr(self):
-        nrr_value = 5
-        self.nrr_value = nrr_value
+        self.list_normalize()
+        table = self.list_unify()
+
+        table_no_date = table.drop(columns=['date'])
+        table_x = table_no_date.drop(columns=['value_usrec'])
+        table_y = table_no_date['value_usrec']
+
+        table_x.interpolate(method ='linear', limit_direction ='backward', inplace=True)
+        table_x.interpolate(method ='linear', limit_direction ='forward', inplace=True)
+
+        x = table_x
+        y = table_y
+
+        n = 300
+        x = table_x.iloc[:n]
+        y = table_y.iloc[:n]
+        x_test = table_x.iloc[n:]
+        y_test = table_y.iloc[n:]
+
+        model = LogisticRegression(solver='liblinear', C=1.0, random_state=0)
+        model.fit(x, y)
+
+        y_pred = model.predict(x_test)
+        x_pred = model.predict_proba(x_test)
+
+        for elem in x_pred:
+            value = 1
+            if elem[1] < 0.1: 
+                value = 4
+            elif elem[1] < 0.2: 
+                value = 3
+            elif elem[1] < 0.3: 
+                value = 2
+            print(value) 
     
 class nrr_table:
     def __init__(self):
