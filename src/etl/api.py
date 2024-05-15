@@ -70,13 +70,13 @@ class STLOUIS(API):
             
             rows.append({
                 "date": elem.get("date"),
-                id: elem.get(id)
+                id: elem.get("value")
             }) 
   
         df = pd.DataFrame(rows, columns=cols) 
 
         df["date"] = pd.to_datetime(df["date"])
-        df["value"] = pd.to_numeric(df["value"], errors = 'coerce')
+        df[id] = pd.to_numeric(df[id], errors = 'coerce')
 
         if(id == "USREC"):
             df = df.iloc[769:]

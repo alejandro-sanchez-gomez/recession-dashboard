@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 
-from etl import kpi
+from etl import kpi, nrr
 
 def set_kpi_data(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield):
         
@@ -67,8 +67,9 @@ def main():
 
         # join all the kpis into one list
         list_kpi = make_list_kpi(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
-
-        
+        nrr_value = nrr.nrr_value(list_kpi)
+        nrr_value.calculate_nrr()
+        nrr_value.upload_nrr_azure()
 
 
 main()

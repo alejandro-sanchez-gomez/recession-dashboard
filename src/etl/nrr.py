@@ -18,14 +18,15 @@ class nrr_value:
     def get_kpis(self):
         return self.kpis
    
-    def get_nrr(self):
-        return self.nrr
+    def get_nrr_table(self):
+        return self.nrr_table
     
     # OPERATIONS
     def list_normalize(self):
         
         list_df = self.get_kpis()
 
+        n = 0
         for elem in list_df:
             elem_copy = elem
             elem_date = elem_copy['date']
@@ -60,8 +61,9 @@ class nrr_value:
         table = self.list_unify()
 
         table_no_date = table.drop(columns=['date'])
-        table_x = table_no_date.drop(columns=['value_usrec'])
-        table_y = table_no_date['value_usrec']
+        table_date = table['date']
+        table_x = table_no_date.drop(columns=['USREC'])
+        table_y = table_no_date['USREC']
 
         table_x.interpolate(method ='linear', limit_direction ='backward', inplace=True)
         table_x.interpolate(method ='linear', limit_direction ='forward', inplace=True)
@@ -69,11 +71,11 @@ class nrr_value:
         x = table_x
         y = table_y
 
-        n = 300
-        x = table_x.iloc[:n]
-        y = table_y.iloc[:n]
-        x_test = table_x.iloc[n:]
-        y_test = table_y.iloc[n:]
+        z = 300
+        x = table_x.iloc[:z]
+        y = table_y.iloc[:z]
+        x_test = table_x.iloc[z:]
+        y_test = table_y.iloc[z:]
 
         model = LogisticRegression(solver='liblinear', C=1.0, random_state=0)
         model.fit(x, y)
@@ -81,6 +83,8 @@ class nrr_value:
         y_pred = model.predict(x_test)
         x_pred = model.predict_proba(x_test)
 
+        list_nrr = []
+        list_dates = []
         for elem in x_pred:
             value = 1
             if elem[1] < 0.1: 
@@ -89,36 +93,12 @@ class nrr_value:
                 value = 3
             elif elem[1] < 0.3: 
                 value = 2
-            print(value) 
-    
-class nrr_table:
-    def __init__(self):
-        print()
+            list_nrr.append(value)
+            list_dates.append(table_date.iloc[z])
+            z = z+1
 
-    def download_nrr_azure(self):
-
-        #authentificate
-        connect_str = os.getenv('KEY_NRR_DATA')
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str) 
-
-        #client
-        blob = BlobClient(account_url="https://<account_name>.blob.core.windows.net"
-                  container_name="<container_name>",
-                  blob_name="<blob_name>",
-                  credential="<account_key>")
-
-        #data
-        with open("example.csv", "wb") as f:
-            data = blob.download_blob()
-            data.readinto(f)
-        
-        #csv to dataframe
-        self.nrr_table = data
-
-    def update_nrr_table(self):
-        #get month
-        current_month = datetime.now().month
-        current_month = str(current_month)
+        self.nrr_table = pandas.DataFrame(list(zip(list_dates, list_nrr)),
+              columns=['date','nrr'])
 
     def upload_nrr_azure(self):
 
@@ -131,7 +111,7 @@ class nrr_table:
 
         #data to csv
         writer = io.BytesIO()
-        self.nrr_table.to_csv(writer)
+        self.get_nrr_table().to_csv(writer)
         
         #upload
         blob_client.upload_blob(writer.getvalue(), overwrite = True)    
