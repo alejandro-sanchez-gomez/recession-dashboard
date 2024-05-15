@@ -1,8 +1,7 @@
 
 import os, io
-import datetime
 import pandas
-from azure.storage.blob import BlobServiceClient, BlobClient
+from azure.storage.blob import BlobServiceClient
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
@@ -57,6 +56,7 @@ class nrr_value:
         return table
 
     def calculate_nrr(self):
+        
         self.list_normalize()
         table = self.list_unify()
 
@@ -65,8 +65,10 @@ class nrr_value:
         table_x = table_no_date.drop(columns=['USREC'])
         table_y = table_no_date['USREC']
 
-        table_x.interpolate(method ='linear', limit_direction ='backward', inplace=True)
-        table_x.interpolate(method ='linear', limit_direction ='forward', inplace=True)
+        table_x.interpolate(method ='linear', 
+                            limit_direction ='backward', inplace=True)
+        table_x.interpolate(method ='linear', 
+                            limit_direction ='forward', inplace=True)
 
         x = table_x
         y = table_y

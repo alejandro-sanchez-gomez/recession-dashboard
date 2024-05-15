@@ -5,6 +5,7 @@ from azure.storage.blob import BlobServiceClient
 from etl import api
 
 class KPI:
+    
     def __init__(self, kpi_name):
         self.set_name(kpi_name)
 

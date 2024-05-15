@@ -3,11 +3,11 @@
 
 import os
 import requests
+import pandas as pd 
 from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-import pandas as pd 
 
 class API_CLASSES(Enum):
     STLOUIS = 0
