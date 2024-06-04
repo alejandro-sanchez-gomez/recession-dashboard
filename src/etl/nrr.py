@@ -89,12 +89,15 @@ class nrr_value:
         list_dates = []
         for elem in x_pred:
             value = 1
-            if elem[1] < 0.1: 
+            if elem[1] < 0.075: 
+                value = 5
+            elif elem[1] < 0.15: 
                 value = 4
-            elif elem[1] < 0.2: 
+            elif elem[1] < 0.225: 
                 value = 3
             elif elem[1] < 0.3: 
                 value = 2
+
             list_nrr.append(value)
             list_dates.append(table_date.iloc[z])
             z = z+1
