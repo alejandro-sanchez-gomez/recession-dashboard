@@ -21,9 +21,9 @@ def make_list_kpi(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, k
         list_kpi = []
 
         # append with usrec as the first value
-
-        list_kpi.append(kpi_usrec.get_data())
+        
         list_kpi.append(kpi_pce.get_data())
+        list_kpi.append(kpi_usrec.get_data())
         list_kpi.append(kpi_cp.get_data())
         list_kpi.append(kpi_gdp.get_data())
         list_kpi.append(kpi_indpro.get_data())
@@ -62,14 +62,24 @@ def main():
         # set data into the kpi
         set_kpi_data(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
 
-        # upload them into azure
-        upload_azure(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
-
         # join all the kpis into one list
         list_kpi = make_list_kpi(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
-        nrr_value = nrr.nrr_value(list_kpi)
-        nrr_value.calculate_nrr()
-        nrr_value.upload_nrr_azure()
 
+        #calculate nrr
+        nrr_value = nrr.NRR_VALUE(list_kpi)
+
+        # upload them into azure
+        #upload_azure(kpi_pce, kpi_cp, kpi_gdp, kpi_indpro, kpi_usrec, kpi_retail, kpi_unrate, kpi_vixcls, kpi_yield)
+        #nrr_value.upload_nrr_azure()
+
+        print(kpi_usrec.get_data())
+        print(kpi_pce.get_data())
+        print(kpi_cp.get_data())
+        print(kpi_gdp.get_data())
+        print(kpi_indpro.get_data())
+        print(kpi_retail.get_data())
+        print(kpi_unrate.get_data())
+        print(kpi_vixcls.get_data())
+        print(kpi_yield.get_data())
 
 main()

@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 import os
@@ -9,15 +8,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-def fetch(url, year):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return year, response.content
-    except requests.exceptions.RequestException as e:
-        print(f"ERROR fetching {year}: {e}")
-        return year, None
 
 class API_CLASSES(Enum):
     STLOUIS = 0
@@ -60,16 +50,14 @@ class STLOUIS(API):
             response = requests.get(url)
             response.raise_for_status() 
             data = BeautifulSoup(response.content, "lxml-xml")
+            print(f"Database {id} successfully fetched!")
+            return data
+        except requests.exceptions.RequestException as e:
+            print(f"ERROR fetching {id}: {e}")
+            return None
         
-        except requests.exceptions.HTTPError as errh:
-            print("ERROR") 
-            print(errh.args[0]) 
-        except requests.exceptions.ConnectionError as conerr: 
-            print("Connection error") 
-        except requests.exceptions.RequestException as errex:
-            print('ERRROR: GET request failed with an status code of ' + str(response.status_code))
-
-        return data
+        
+        
     
     def transform_data(id, data):
 
@@ -77,19 +65,16 @@ class STLOUIS(API):
         rows = [] 
 
         for elem in data.find_all("observation"):
-            
             rows.append({
                 "date": elem.get("date"),
                 id: elem.get("value")
             }) 
-  
+            
         df = pd.DataFrame(rows, columns=cols) 
-
         df["date"] = pd.to_datetime(df["date"])
         df[id] = pd.to_numeric(df[id], errors = 'coerce')
 
-        if(id == "USREC"):
-            df = df.iloc[769:]
+        if(id == "USREC"): df = df.iloc[769:]
 
         return df
     
@@ -97,28 +82,40 @@ class STLOUIS(API):
 
         data = STLOUIS.request_data(id)
         df = STLOUIS.transform_data(id, data)
-
         return df
-    
+  
+def fetch_ustreasury(url, year):
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return year, response.content
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR fetching {year}: {e}")
+        return year, None
+
 class USTREASURY(API):
 
     def request_data(id):
+
         last_year = datetime.now().year
         current_year = 1990
         urls = [
             (f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data={id}&field_tdr_date_value={year}", year)
             for year in range(current_year, last_year + 1)
         ]
-
         data = BeautifulSoup(features="lxml-xml")
         total = len(urls)
         completed = 0
 
         with ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_url = {executor.submit(fetch, url, year): (url, year) for url, year in urls}
+            
+            future_to_url = {executor.submit(fetch_ustreasury, url, year): (url, year) for url, year in urls}
+
             for future in as_completed(future_to_url):
                 completed += 1
                 url, year = future_to_url[future]
+
                 try:
                     year, content = future.result()
                     if content:
@@ -126,8 +123,11 @@ class USTREASURY(API):
                         data.append(page)
                 except Exception as exc:
                     print(f"Generated an exception for {year}: {exc}")
-                print(f"Progress: {completed}/{total} ({(completed/total)*100:.2f}%)")
+                    return None
+
+                print(f"Database {id} fetching progress: {completed}/{total} ({(completed/total)*100:.2f}%)")
         
+        print(f"Database {id} successfully fetched!")
         return data
 
     
