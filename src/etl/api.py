@@ -7,7 +7,7 @@
 - STLOUIS: Implementation of the API class that extracts data from the FRED repository.
 - USTREASURY: Implementation of the API class that extracts data from the U.S. Treasury repository.
 """
-import os # access environmental variables in order to use the APIs keys.
+import os # access Window's system environmental variables in order to authentificate to Azure Blob Storage.
 import requests # makes HTTP requests to extract data from web repositories.
 import pandas as pd # transforms extracted data into workable formats.
 from bs4 import BeautifulSoup # parses XML data from HTTP's requests.
